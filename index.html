@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do List</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    #todo-container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 500px;
+    }
+    #new-task {
+      width: calc(100% - 100px);
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+      margin-right: 10px;
+    }
+    #add-task {
+      padding: 10px 20px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    #add-task:hover {
+      background-color: #218838;
+    }
+    #todo-list {
+      list-style-type: none;
+      padding: 0;
+      margin: 20px 0;
+    }
+    #todo-list li {
+      display: flex;
+      align-items: center;
+      margin: 10px 0;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      background: #f9f9f9;
+      transition: all 0.3s ease;
+    }
+    #todo-list li.completed {
+      background-color: #e0ffe0;
+      border-color: #b2f2bb;
+    }
+    #todo-list li.completed .task {
+      text-decoration: line-through;
+      color: #888;
+    }
+    .task {
+      flex-grow: 1;
+      margin: 0 10px;
+      font-size: 16px;
+    }
+    .checkmark {
+      cursor: pointer;
+      font-size: 20px;
+      color: #ccc;
+      transition: color 0.3s ease;
+    }
+    .checkmark.completed {
+      color: green;
+    }
+    #progress-tracker {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 24px;
+      color: #28a745;
+      font-weight: bold;
+    }
+    #download-pdf {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    #download-pdf:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>To-Do List</h1>
+  <div id="todo-container">
+    <div>
+      <input type="text" id="new-task" placeholder="Add a new task">
+      <button id="add-task">Add Task</button>
+    </div>
+    <ul id="todo-list"></ul>
+    <div id="progress-tracker">You have completed 0 out of 0 chores (0%)</div>
+    <button id="download-pdf">Download PDF</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script>
+    const todoList = document.getElementById('todo-list');
+    const progressTracker = document.getElementById('progress-tracker');
+
+    document.getElementById('add-task').addEventListener('click', function() {
+      const newTaskInput = document.getElementById('new-task');
+      const taskText = newTaskInput.value.trim();
+      if (taskText !== '') {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <span class="checkmark">✓</span>
+          <span class="task">${taskText}</span>
+        `;
+        todoList.appendChild(li);
+        newTaskInput.value = '';
+        addCheckmarkListener(li);
+        updateProgress();
+      }
+    });
+
+    function addCheckmarkListener(li) {
+      const checkmark = li.querySelector('.checkmark');
+      checkmark.addEventListener('click', function() {
+        li.classList.toggle('completed');
+        checkmark.classList.toggle('completed');
+        updateProgress();
+      });
+    }
+
+    function updateProgress() {
+      const totalTasks = todoList.children.length;
+      const completedTasks = document.querySelectorAll('#todo-list li.completed').length;
+      const percentage = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
+      progressTracker.textContent = `You have completed ${completedTasks} out of ${totalTasks} chores (${percentage}%)`;
+    }
+
+    document.getElementById('download-pdf').addEventListener('click', function() {
+      const element = document.getElementById('todo-container');
+      html2pdf()
+        .from(element)
+        .save('todo-list.pdf');
+    });
+  </script>
+</body>
+</html>
